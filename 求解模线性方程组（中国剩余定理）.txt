@@ -1,0 +1,209 @@
+求解模线性方程组(中国剩余定理)
+  x=a1 mod m1
+  x=a2 mod m2
+  ......
+  x=an mod mn  其中,a[],m[]已知,m[i]>0且m[i]与m[j]互质,求x.
+普通的中国剩余定理要求所有的m是互素
+有整数解。并且在模下的解是唯一的，解为
+int CRT(int a[],int m[],int n)
+{
+    int M = 1;
+    int ans = 0;
+    for(int i=1; i<=n; i++)
+        M *= m[i];
+    for(int i=1; i<=n; i++)
+    {
+        int x, y;
+        int Mi = M / m[i];
+        extend_Euclid(Mi, m[i], x, y);
+        ans = (ans + Mi * x * a[i]) % M;
+    }
+    if(ans < 0) ans += M;
+    return ans;
+}
+人自出生起就有体力，情感和智力三个生理周期，分别为23，28和33天。一个周期内有一天为峰值，在这一
+天，人在对应的方面（体力，情感或智力）表现最好。通常这三个周期的峰值不会是同一天。现在给出三个日
+期，分别对应于体力，情感，智力出现峰值的日期。然后再给出一个起始日期，要求从这一天开始，算出最少
+再过多少天后三个峰值同时出现。
+0 0 0 0
+0 0 0 100
+5 20 34 325
+4 5 6 7
+283 102 23 320
+203 301 203 40
+-1 -1 -1 -1
+Case 1: the next triple peak occurs in 21252 days.
+Case 2: the next triple peak occurs in 21152 days.
+Case 3: the next triple peak occurs in 19575 days.
+Case 4: the next triple peak occurs in 16994 days.
+Case 5: the next triple peak occurs in 8910 days.
+Case 6: the next triple peak occurs in 10789 days.
+
+#include <iostream>
+#include <string.h>
+#include <stdio.h>
+
+using namespace std;
+
+int a[4], m[4];
+
+void extend_Euclid(int a, int b, int &x, int &y)
+{
+    if(b == 0)
+    {
+        x = 1;
+        y = 0;
+        return;
+    }
+    extend_Euclid(b, a % b, x, y);
+    int tmp = x;
+    x = y;
+    y = tmp - (a / b) * y;
+}
+
+int CRT(int a[],int m[],int n)
+{
+    int M = 1;
+    int ans = 0;
+    for(int i=1; i<=n; i++)
+        M *= m[i];
+    for(int i=1; i<=n; i++)
+    {
+        int x, y;
+        int Mi = M / m[i];
+        extend_Euclid(Mi, m[i], x, y);
+        ans = (ans + Mi * x * a[i]) % M;
+    }
+    if(ans < 0) ans += M;
+    return ans;
+}
+
+int main()
+{
+    int p, e, i, d, t = 1;
+    while(cin>>p>>e>>i>>d)
+    {
+        if(p == -1 && e == -1 && i == -1 && d == -1)
+            break;
+        a[1] = p;
+        a[2] = e;
+        a[3] = i;
+        m[1] = 23;
+        m[2] = 28;
+        m[3] = 33;
+        int ans = CRT(a, m, 3);
+        if(ans <= d)
+            ans += 21252;
+        cout<<"Case "<<t++<<": the next triple peak occurs in "<<ans - d<<" days."<<endl;
+    }
+    return 0;
+}
+
+不互素？
+input：
+2
+8 7
+11 9
+output：
+31
+#include <iostream>
+#include <string.h>
+#include <stdio.h>
+
+using namespace std;
+typedef long long LL;
+const int N = 1005;
+
+LL a[N], m[N];
+
+LL gcd(LL a,LL b)
+{
+    return b? gcd(b, a % b) : a;
+}
+
+void extend_Euclid(LL a, LL b, LL &x, LL &y)
+{
+    if(b == 0)
+    {
+        x = 1;
+        y = 0;
+        return;
+    }
+    extend_Euclid(b, a % b, x, y);
+    LL tmp = x;
+    x = y;
+    y = tmp - (a / b) * y;
+}
+
+LL Inv(LL a, LL b)
+{
+    LL d = gcd(a, b);
+    if(d != 1) return -1;
+    LL x, y;
+    extend_Euclid(a, b, x, y);
+    return (x % b + b) % b;
+}
+
+bool merge(LL a1, LL m1, LL a2, LL m2, LL &a3, LL &m3)
+{
+    LL d = gcd(m1, m2);
+    LL c = a2 - a1;
+    if(c % d) return false;
+    c = (c % m2 + m2) % m2;
+    m1 /= d;
+    m2 /= d;
+    c /= d;
+    c *= Inv(m1, m2);
+    c %= m2;
+    c *= m1 * d;
+    c += a1;
+    m3 = m1 * m2 * d;
+    a3 = (c % m3 + m3) % m3;
+    return true;
+}
+
+LL CRT(LL a[], LL m[], int n)
+{
+    LL a1 = a[1];
+    LL m1 = m[1];
+    for(int i=2; i<=n; i++)
+    {
+        LL a2 = a[i];
+        LL m2 = m[i];
+        LL m3, a3;
+        if(!merge(a1, m1, a2, m2, a3, m3))
+            return -1;
+        a1 = a3;
+        m1 = m3;
+    }
+    return (a1 % m1 + m1) % m1;
+}
+
+int main()
+{
+    int n;
+    while(scanf("%d",&n)!=EOF)
+    {
+        for(int i=1; i<=n; i++)
+            scanf("%I64d%I64d",&m[i], &a[i]);
+        LL ans = CRT(a, m, n);
+        printf("%I64d\n",ans);
+    }
+    return 0;
+}
+
+设m1,m2,...,mn是两两互素的正数,则对任意的整数a1,a2,...,an,同余方程组
+其解为:X=((M_1*M1*a1)+(M_2*M2*a2)+...+(M_n*Mn*an)) mod m;
+其中m=m1*m2*...*mn;  Mi=m/mi; M_i是Mi的逆元
+int china(int *a,int *m,int n)
+{
+   int M=1,ans=0,mi,i,x,y;
+   for(i=0;i<n;i++) M*=m[i];
+   for(i=0;i<n;i++)
+   {
+       mi=M/m[i];
+       exgcd(m[i],mi,x,y);
+       ans=(ans+mi*y*a[i])%M;
+   }
+   return (ans%M+M)%M;
+}

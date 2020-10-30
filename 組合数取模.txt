@@ -1,0 +1,144 @@
+组合数取模就是求C(n,m)%p的值，当然根据n，m和p的取值范围不同，采取的方法也不一样。
+1.P是素数：
+#include <iostream>
+#include <string.h>
+#include <stdio.h>
+
+using namespace std;
+typedef long long LL;
+
+LL n,m,p;
+
+LL quick_mod(LL a, LL b)
+{
+    LL ans = 1;
+    a %= p;
+    while(b)
+    {
+        if(b & 1)
+        {
+            ans = ans * a % p;
+            b--;
+        }
+        b >>= 1;
+        a = a * a % p;
+    }
+    return ans;
+}
+
+LL C(LL n, LL m)
+{
+    if(m > n) return 0;
+    LL ans = 1;
+    for(int i=1; i<=m; i++)
+    {
+        LL a = (n + i - m) % p;
+        LL b = i % p;
+        ans = ans * (a * quick_mod(b, p-2) % p) % p;
+    }
+    return ans;
+}
+
+LL Lucas(LL n, LL m)
+{
+    if(m == 0) return 1;
+    return C(n % p, m % p) * Lucas(n / p, m / p) % p;
+}
+
+int main()
+{
+    int T;
+    scanf("%d", &T);
+    while(T--)
+    {
+        scanf("%I64d%I64d%I64d", &n, &m, &p);
+        printf("%I64d\n", Lucas(n,m));
+    }
+    return 0;
+}
+2.P不一定是素数也可能是合数
+#include <iostream>
+#include <string.h>
+#include <stdio.h>
+
+using namespace std;
+typedef long long LL;
+const int N = 200005;
+
+bool prime[N];
+int p[N];
+int cnt;
+
+void isprime()
+{
+    cnt = 0;
+    memset(prime,true,sizeof(prime));
+    for(int i=2; i<N; i++)
+    {
+        if(prime[i])
+        {
+            p[cnt++] = i;
+            for(int j=i+i; j<N; j+=i)
+                prime[j] = false;
+        }
+    }
+}
+
+LL quick_mod(LL a,LL b,LL m)
+{
+    LL ans = 1;
+    a %= m;
+    while(b)
+    {
+        if(b & 1)
+        {
+            ans = ans * a % m;
+            b--;
+        }
+        b >>= 1;
+        a = a * a % m;
+    }
+    return ans;
+}
+
+LL Work(LL n,LL p)
+{
+    LL ans = 0;
+    while(n)
+    {
+        ans += n / p;
+        n /= p;
+    }
+    return ans;
+}
+
+LL Solve(LL n,LL m,LL P)
+{
+    LL ans = 1;
+    for(int i=0; i<cnt && p[i]<=n; i++)
+    {
+        LL x = Work(n, p[i]);
+        LL y = Work(n - m, p[i]);
+        LL z = Work(m, p[i]);
+        x -= (y + z);
+        ans *= quick_mod(p[i],x,P);
+        ans %= P;
+    }
+    return ans;
+}
+
+int main()
+{
+    int T;
+    isprime();
+    cin>>T;
+    while(T--)
+    {
+        LL n,m,P;
+        cin>>n>>m>>P;
+        n += m - 2;
+        m--;
+        cout<<Solve(n,m,P)<<endl;
+    }
+    return 0;
+}

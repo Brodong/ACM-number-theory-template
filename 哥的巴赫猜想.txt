@@ -1,0 +1,104 @@
+哥德巴赫猜想：任何一个大于2的偶数，都可以表示为两个素数之和。
+另外还有，任何一个大于5的奇数都可以表示为三个素数之和。
+给定一个正整数n，范围是[2,10^9]，把n表示为若干个素数的和，输出一种方案，使得素数的个数最少。
+#include <iostream>
+#include <string.h>
+#include <stdio.h>
+#include <vector>
+
+using namespace std;
+typedef long long LL;
+const int N = 10005;
+const LL MOD = 1000000007;
+
+bool prime[N];
+int p[N];
+int k;
+
+vector<LL> v1;
+vector<LL> v2;
+vector<LL> *p1;
+vector<LL> *p2;
+
+void isprime()
+{
+    k = 0;
+    int i,j;
+    memset(prime,true,sizeof(prime));
+    for(i=2;i<N;i++)
+    {
+        if(prime[i])
+        {
+            p[k++] = i;
+            for(j=i+i;j<N;j+=i)
+            {
+                prime[j] = false;
+            }
+        }
+    }
+}
+
+void Work()
+{
+    p1 = &v1;
+    p2 = &v2;
+    for(int i=0;i<N;i++)
+    {
+        if(i&1) p1->push_back(0);
+        else    p1->push_back(1);
+    }
+    for(int i=1;i<k;i++)
+    {
+        p2->clear();
+        for(int j=0;j<N;j++)
+        {
+            if(j < p[i]) p2->push_back((*p1)[j]%MOD);
+            else         p2->push_back(((*p1)[j]%MOD + (*p2)[j-p[i]]%MOD)%MOD);
+        }
+        vector<LL> *tmp;
+        tmp = p2;
+        p2 = p1;
+        p1 = tmp;
+    }
+}
+
+int main()
+{
+    int n;
+    isprime();
+    Work();
+    while(cin>>n)
+    {
+        cout<<(*p1)[n]<<endl;
+    }
+    return 0;
+}
+
+
+如果哥德巴赫猜想是正确的，一个（不小于6的）偶数，都是两个素数之和。那么这个偶数能被至少一个素数对表示，如14，即可以表示为14＝3＋11，也可以表示为14=7+7。不同的偶数对应的素数对的数目是不一样的，如偶数6，就只能表示为6=3+3。对于每个给定的偶数，我们希望知道有多少素数对的和等于该偶数。
+#include <iostream>
+#include <math.h>
+#define maxn 16777220
+using namespace std;
+bool a[maxn];
+int main()
+{
+    int n;
+    for(int i=0;i<=maxn;i++)
+    a[i]=1;
+    for(int i=2;i<=sqrt(maxn);i++)
+    if(a[i])
+    for(int k=i*2;k<=maxn;k+=i)
+    a[k]=0;
+    while(cin>>n)
+    {
+        int s=0;
+        for(int i=3;i<=n/2;i++)
+        if(a[i]&&a[n-i])
+        {
+            s++;
+        }
+        cout<<s<<endl;
+    }return 0;
+}
+

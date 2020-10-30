@@ -1,0 +1,37 @@
+给定一个n，注意这里n小于10^12，求从i=1到n， n%i之和
+import java.math.BigInteger;
+import java.util.Scanner;
+import java.math.*;
+
+public class Main
+{
+	   public static BigInteger Solve(long n)
+	   {
+		   BigInteger ans=BigInteger.ZERO;
+		   long i,t=(long) Math.sqrt(n*1.0);
+		   for(i=1L;i<=t;i++)
+		   {
+			   BigInteger a=BigInteger.valueOf(n/i+n/(i+1)+1); 
+			   BigInteger b=BigInteger.valueOf(n/i-n/(i+1));
+			   BigInteger temp=BigInteger.ZERO;
+			   if(i!=(n/i))
+			       temp= (a.multiply(b)).divide(BigInteger.valueOf(2));
+			   BigInteger c=BigInteger.valueOf(n/i);
+			   BigInteger ret=c.add(temp);
+			   ret=ret.multiply(BigInteger.valueOf(i));
+			   ans=ans.add(ret);
+		   }
+		   return ans;
+	   }
+	
+	   public static void main(String[] args)
+	   {
+		      Scanner cin = new Scanner(System.in);
+		      while(cin.hasNextLong())
+		      {
+		    	   long n=cin.nextLong();
+		    	   BigInteger x=BigInteger.valueOf(n);
+		    	   System.out.println((x.multiply(x)).subtract(Solve(n)));
+		      }
+	   }
+}

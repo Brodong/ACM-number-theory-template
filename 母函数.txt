@@ -1,0 +1,139 @@
+定义（摘自百度百科）：
+对于任意数列a0,a1,a2...an 即用如下方法与一个函数联系起来：
+~G(x) = a0 + a1x + a2x^2 + a3x^3 +....+ anx^n
+则称G(x)是数列的母函数。
+那我们怎么写代码来计算呢？
+我以(1+x)*(1+x^2)*(1+x^3)*(1+x^4)为例子：
+//计算(1+x)*(1+x^2)*(1+x^3)*(1+x^4)
+#include <iostream>
+
+using namespace std;
+#define maxn 20 //数组的大小
+int c1[maxn],c2[maxn];
+
+int main()
+{
+       int m;
+       for(int i=0;i<maxn;i++) //初始化第一个式子:(1+x^2+x^3+...)
+       {
+           c1[i]=1;
+           c2[i]=0;
+       }
+       for(int i=2;i<=4;i++) // i 从第二个式子循环到第四个
+       {
+           for(int j=0;j<=0.5*i*(i-1);j++) // j 从0循环到它所在式子中的指数最大值 
+           {
+               for(int k=0,t=0;t<=1;t++,k+=i) //本例子中 k 表示指数增量，t 表示 k 增加几次。本式子中k增加1次
+               {
+                   c2[k+j]+=c1[j];
+               }
+           }
+           for(int j=0;j<maxn;j++) //更新数组
+           {
+               c1[j]=c2[j];
+               c2[j]=0;
+           }
+       }
+       for(int i=0;i<maxn;i++)
+        cout<<c1[i]<<" ";
+        cout<<endl;
+
+   return 0;
+}
+运行后：
+1 1 1 2 2 2 2 2 1 1 1 0 0 0 0 0 0 0 0 0
+
+
+我们不再限制是有一张了，而是有很多张。
+看下面这道题：
+1.Sample Input
+2
+10
+30
+0
+Sample Output
+1
+4
+27
+有无限张1角，4角(2*2)，9角(3*3)到289角(17*17)。问要付N角的东西，有几种付款方式？
+这个就是求(1+x+x^2+x^3+x^4+···)*(1+x^4+x^8+···)*(1+x^9+x^18+···)···求解之后x的N次幂的系数。
+我们改一下三个for循环的范围即可：
+代码：
+#include <iostream>
+
+using namespace std;
+#define maxn 305
+int c1[maxn],c2[maxn];
+
+int main()
+{
+   int m;
+   while(cin>>m&&m)
+   {
+       for(int i=0;i<maxn;i++)
+       {
+           c1[i]=1;
+           c2[i]=0;
+       }
+       for(int i=2;i<=17;i++)
+       {
+           for(int j=0;j<maxn;j++)
+           {
+               for(int k=0;k+j<maxn;k+=(i*i))
+               {
+                   c2[k+j]+=c1[j];
+               }
+           }
+           for(int j=0;j<maxn;j++)
+           {
+               c1[j]=c2[j];
+               c2[j]=0;
+           }
+       }
+       cout<<c1[m]<<endl;
+   }
+   return 0;
+}
+
+2.问4的组成方式的个数，这是典型的母函数，直接上代码了：
+4 = 4; 
+4 = 3 + 1; 
+4 = 2 + 2; 
+4 = 2 + 1 + 1; 
+4 = 1 + 1 + 1 + 1; 
+#include <iostream>
+
+using namespace std;
+#define maxn 130
+int c1[maxn],c2[maxn];
+
+int main()
+{
+   int m;
+   while(cin>>m&&m)
+   {
+       for(int i=0;i<maxn;i++)
+       {
+           c1[i]=1;
+           c2[i]=0;
+       }
+       for(int i=2;i<=maxn;i++)
+       {
+           for(int j=0;j<maxn;j++)
+           {
+               for(int k=0;k+j<maxn;k+=i)
+               {
+                   c2[k+j]+=c1[j];
+               }
+           }
+           for(int j=0;j<maxn;j++)
+           {
+               c1[j]=c2[j];
+               c2[j]=0;
+           }
+       }
+       cout<<c1[m]<<endl;
+   }
+   return 0;
+}
+

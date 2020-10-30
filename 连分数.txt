@@ -1,0 +1,114 @@
+Sample Input
+
+75 34
+65 60
+0 0
+Sample Output
+
+Case 1:
+75 / 34
+..........1......
+2.+.-------------
+............1....
+....4.+.---------
+..............1..
+........1.+.-----
+................1
+............5.+.-
+................1
+Case 2:
+65 / 60
+......1...
+1.+.------
+.........1
+....11.+.-
+.........1
+
+import java.io.*;
+import java.util.*;
+import java.math.BigInteger;
+
+public class Main
+{
+	 static final int N = 100005;
+	 static BigInteger ans[] = new BigInteger[N];
+	 static int cnt = 0;
+	 
+	 static boolean EqualToZero(BigInteger x)
+	 {
+		  if(x.compareTo(BigInteger.ZERO) == 0) return true;
+		  else return false;
+	 }
+	 
+	 static void gcd(BigInteger a,BigInteger b)
+	 {
+		  cnt = 0;
+		  ans[cnt++] = a.divide(b);
+		  BigInteger r = a.mod(b);
+		  while(!EqualToZero(r))
+		  {
+			   a = b;
+			   b = r;
+			   ans[cnt++] = a.divide(b);
+			   r = a.mod(b);
+		  }
+		  ans[cnt++] = BigInteger.ONE;
+		  ans[cnt-2] = ans[cnt-2].subtract(BigInteger.ONE);
+	 }
+	 
+	 public static void main(String[] args)
+	 {
+		  Scanner cin = new Scanner(System.in);
+		  int tt = 1;
+		  while(cin.hasNextBigInteger())
+		  {
+			   BigInteger p = cin.nextBigInteger();
+			   BigInteger q = cin.nextBigInteger();
+			   if(EqualToZero(p) && EqualToZero(q)) break;
+			   gcd(p,q);
+			   System.out.println("Case "+(tt++)+":");
+			   System.out.println(p+" / "+q);
+			   int length = 3*(cnt-1);
+			   for(int i=0;i<cnt;i++)
+				   length += ans[i].toString().length();
+			   int len = length;
+			   int ct = 0;
+			   for(int k=0;k<cnt-1;k++)
+			   {
+			       int pos = ans[k].toString().length() +  3;
+			       int record = pos;
+			       int num = length - pos;
+			       int tmp = 0;
+			       if(num % 2 == 1)
+			       {
+				        tmp = num / 2 + 1;
+				        pos += tmp;
+			       }
+			       else
+			       {
+				        tmp = num / 2;
+				        pos += tmp;
+			       }
+			       for(int i=1;i<=ct;i++)
+			    	    System.out.print(".");
+			       for(int i=1;i<=length;i++)
+			       {
+				        if(i == pos) System.out.print("1");
+				        else System.out.print(".");
+			       }
+			       System.out.println("");
+			       for(int i=1;i<=ct;i++)
+			    	    System.out.print(".");
+			       System.out.print(ans[k]+".+.");
+			       for(int i=1;i<=num;i++)
+			    	   System.out.print("-");
+			       System.out.println("");
+			       length -= record;
+			       ct += record;
+			   }
+			   for(int i=1;i<len;i++)
+				   System.out.print(".");
+			   System.out.println("1");
+		  }
+	 }
+}

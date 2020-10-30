@@ -1,0 +1,22 @@
+求逆元ax=1 (mod m) x是a的逆元
+
+(1)用扩展欧几里得求
+int Inv(int a,int m)
+{
+  int r,x,y;
+  r=exgcd(a,m,x,y);
+  if(r==1) return (x%m+m)%m;
+  return -1;
+}
+(2)用快速幂取模求a*a^(p-2)=a^(p-1)=1 (mod p) p必须为素数,a的逆元是a^(p-2);
+int pow(int a,int n)//a^n%p (n=p-2)
+{//这里的做法会让a的值变化,可令t=a;用t代替a计算
+ int r=1;
+ while(n)
+ {
+  if(n&1) r=r*a%p;
+  a=a*a%p;
+  n>>=1;
+ }
+ return r;
+}

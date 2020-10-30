@@ -1,0 +1,55 @@
+给出a,b，N,找出自然数x,y满足：N-(a*x+b*y)的值最小，如果有多组解是，输出任意一组。
+#include <iostream>
+#include <string.h>
+#include <stdio.h>
+
+using namespace std;
+
+void Work(int a,int b,int n)
+{
+    if(a == 1)
+    {
+        printf("%d 0\n",n);
+        return;
+    }
+    if(b == 1)
+    {
+        printf("0 %d\n",n);
+        return;
+    }
+    if(a == b)
+    {
+        printf("%d 0\n",n/a);
+        return;
+    }
+    bool flag = false;
+    if(a < b)
+    {
+        swap(a,b);
+        flag = true;
+    }
+    int x;
+    int minval = (1<<31)-1;
+    int t = min(n/a,b);
+    for(int i=0;i<=t;i++)
+    {
+        int tmp = (n-a*i)%b;
+        if(minval > tmp)
+        {
+            minval = tmp;
+            x = i;
+        }
+    }
+    if(flag) printf("%d %d\n",(n-a*x)/b,x);
+    else     printf("%d %d\n",x,(n-a*x)/b);
+}
+
+int main()
+{
+    int a,b,n;
+    while(~scanf("%d%d%d",&a,&b,&n))
+    {
+        Work(a,b,n);
+    }
+    return 0;
+}

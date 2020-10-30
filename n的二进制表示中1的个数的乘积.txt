@@ -1,0 +1,80 @@
+设 sum(i) 表示 i 的二进制表示中 1 的个数。给出一个正整数 N ，求 sum(1)至sum(N) 的乘积。
+#include <iostream>
+#include <string.h>
+#include <stdio.h>
+
+using namespace std;
+typedef long long LL;
+
+const int N=100005;
+const int M=255;
+const int MOD=10000007;
+
+LL a[N],len,n;
+LL C[M][M];
+
+void Init()
+{
+    LL i,j;
+    for(i=0;i<60;i++)
+    {
+        C[i][0]=1;
+        for(j=1;j<=i;j++)
+        {
+            C[i][j]=C[i-1][j]+C[i-1][j-1];
+        }
+    }
+}
+
+LL Solve(LL k)
+{
+    LL ans=0;
+    for(LL i=len;i>=1;i--)
+    {
+        if(a[i])
+        {
+            ans+=C[i-1][k];
+            k--;
+        }
+        if(k<0) return ans;
+    }
+    return ans;
+}
+
+LL quick_mod(LL a,LL b)
+{
+    LL ans=1;
+    a%=MOD;
+    while(b)
+    {
+        if(b&1)
+        {
+            ans=ans*a%MOD;
+            b--;
+        }
+        b>>=1;
+        a=a*a%MOD;
+    }
+    return ans;
+}
+
+int main()
+{
+    LL n,i,j;
+    Init();
+    while(cin>>n)
+    {
+        n++;
+        len=0;
+        while(n)
+        {
+            a[++len]=n%2;
+            n>>=1;
+        }
+        LL ans=1;
+        for(i=1;i<=len;i++)
+            ans=ans*quick_mod(i,Solve(i))%MOD;
+        cout<<ans<<endl;
+    }
+    return 0;
+}

@@ -1,0 +1,112 @@
+3.素数判定
+(1)试除法:
+bool  isprime(int n)
+{
+ int i;
+ for(i=2;i<=(int)sqrt(n*1.0);i++)
+     if(n%i==0)    return  false;
+ return  true;
+}
+bool isprime(int n)
+{
+ if(n==2) return true;
+ if(n==1||(n&1)==0)  return false;
+ for(int i=3;i*i<=n;i+=2)   if(n%i==0) return fals;
+ return true;
+}
+(2)miller-rabin 算法
+bool witness(i64 a,i64 n)
+{
+  i64 x,d=1,i=ceil(log(n-1.0)/log(2.0))-1;
+  for(;i>=0;i--)
+  {
+    x=d; d=(d*d)%n;
+    if(d==1&&x!=1&&x!=n-1) return 1;
+    if(((n-1)&(1<<i))>0) d=(d*a)%n;
+  }
+  return  d==1?0:1;
+}
+bool miller_rabin(i64 n)
+{
+  if(n==2)   return 1;
+  if(n==1||(n&1)==0) return 0;
+  i64 j,a;
+  for(j=0;j<50;j++)
+  {
+   a=rand()*(n-2)/RAND_MAX+1;
+   if(witness(a,n)) return 0;
+  }
+  return 1;
+}
+
+素數篩選法：
+#include<string.h>
+const int N = 1000005;
+bool prim[N];
+void isprim()
+{
+    memset(prim,true,sizeof(prim));
+    for(int i=2;i*i<N;i++){
+        if(prim[i]){
+            for(int j=i*i;j<N;j=j+i){
+                prim[j]=false;
+            }
+        }
+    }
+}
+
+素數打表：
+#define MAX_N 1000
+int a[MAX_N+1];
+int p[MAX_N+1];
+int nCount=0;
+
+void Init(int n) //线性筛法，不过在小范围上(约n<1e7)不比上一个方法快
+{
+    for (int i=2;i<=n;i++)
+    {
+        if (a[i]==0)
+        {
+            p[++nCount]=i;
+        }
+        for (int j=1,k; (j<=nCount) && (k=i*p[j])<=n; j++) //筛选循环
+        {
+            a[k] = 1 ;
+            if (i%p[j] == 0) break;
+        }
+    }
+}
+
+#include <iostream>
+#include <stdio.h>
+int main(void)
+{
+    Init(MAX_N);
+    for(int n=1; p[n]>1; ++n)
+    {
+        printf("%5d", p[n]);
+    }
+    return 0;
+}
+
+素数个数的位数
+他发现求1到正整数10n(次方） 之间有多少个素数是一个很难的问题，该问题的难以决定于n 值的大小。
+现在的问题是，告诉你n的值，让你帮助小明计算小于10n次方的素数的个数值共有多少位？
+//Accepted 872k 3ms C++ (g++ 3.4.3) 284
+#include<cstdio>
+#include<iostream>
+#include<cstring>
+#include<algorithm>
+#include<cmath>
+using namespace std;
+int main()
+{
+    double n;
+    while(~scanf("%lf",&n))
+    {
+        double c;
+        c=n-log10(n)-log10(log(10));
+        printf("%d\n",int(c)+1);
+    }
+    return 0;
+}

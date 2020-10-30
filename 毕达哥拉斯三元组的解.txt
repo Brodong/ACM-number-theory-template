@@ -1,0 +1,68 @@
+对于一个方程： x^2 + y^2 = z^2，他两两互质的正整数解满足一下条件
+
+1. x = 2*m*n ,y = m^2 - n^2 ,z = m^2 + n^2
+2. gcd( m , n) =1, m > n , m 与 n 的奇偶性不同
+( 2*m*n )^2 + ( m^2 - n^2 )^2 = ( m^2 + n^2 )显然成立。
+
+下面我们来看一个例题 POJ 1305 传送门
+题目大意：给一个正整数n求解，求解n的范围内gcd值为1的勾股数和不是勾股数的个数。
+题目分析：根据毕达哥拉斯定理，gcd值为1的勾股数就是本源毕达哥拉斯三元组，有公式如下：
+x=j*j-i*i;
+y=2*i*j;
+z=i*i+j*j;
+其中i和j其中一个为奇数，另一个为偶数，且j>i;
+本题数量小，直接暴力枚举就好
+题意：
+给定一个n，然后求满足上面那个方程的解的个数以及不满足勾股数的个数。
+分析：
+题目的数据范围比较小z^2的范围最大为1e6,因此我们可以直接根据奇偶性来
+枚举。
+#include <iostream>
+#include <cstdio>
+#include <cstring>
+using namespace std;
+
+const int maxn = 1e6+10;
+
+int gcd(int a,int b){
+    if(b) return gcd(b,a%b);
+    return a;
+}
+
+int n;
+bool vis[maxn];
+
+void solve(){
+    memset(vis,0,sizeof(vis));
+    int ans1=0,ans2=0;
+    for(int i=1;i*i<=n;i++){
+        for(int j=2;j*j<=n;j+=2){
+            if(gcd(i,j)==1){
+                int l=i,r=j;
+                if(l>r) swap(l,r);
+                if(l*l+r*r<=n){
+                    ans1++;
+                    vis[2*r*l]=1;
+                    vis[r*r-l*l]=1;
+                    vis[l*l+r*r]=1;
+                }
+                int x = 2*l*r;
+                int y = -l*l+r*r;
+                int z = l*l+r*r;
+                for(int k=2;k*z<=n;k++)
+                    vis[k*x]=1,vis[k*y]=1,vis[k*z]=1;
+            }
+        }
+    }
+    for(int i=1;i<=n;i++)
+        if(!vis[i]) ans2++;
+    printf("%d %d\n",ans1,ans2);
+}
+
+int main()
+{
+    while(~scanf("%d",&n)){
+        solve();
+    }
+    return 0;
+}

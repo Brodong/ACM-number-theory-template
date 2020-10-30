@@ -1,0 +1,98 @@
+求一个数的质因子：
+#include<stdio.h>
+int a[20];
+int main()
+{
+    int n,i,num=0;
+    scanf("%d",&n);
+      for (i=2;i*i<=n;i++)
+        {
+            if (n%i==0) a[num++]=i;
+            while(n%i==0) n=n/i;
+        }
+      if (n>1) a[num++]=n;
+        for (i=0;i<num;i++)
+          printf("%d ",a[i]);
+     printf("\n");
+   return 0;
+}
+求n个数(1~n)的质因子：
+求n个数(1~n)的质因子，我用到了素数筛选法的思想，例如找到素数2,，2是2,4,6,8,10······的质因子，
+3是3,6,9,12······的质因子，然后找到素数5，······
+#include<stdio.h>
+#include<string.h>
+int a[10001][20],b[10001];   //b[i]表示第i个数的质因子个数，a[i][j]表示i的第j+1个质因子（j从0开始）
+bool visit[1001];        
+int main()
+{
+    int i,j,n;
+    memset(visit,true,sizeof(visit));
+    memset(b,0,sizeof(b));
+    scanf("%d",&n);
+    for (i=2;i<=n;i++)
+    {
+        if (visit[i])   //visit[i]为true表示i为素数
+        {
+            a[i][b[i]++]=i;
+            for (j=i+i;j<=n;j+=i)    
+              {
+                a[j][b[j]++]=i;     //对于素数i，它是它的倍数的质因子
+                visit[j]=false;      //i的大于i的倍数不是素数
+              }
+        }
+    }
+    for (i=2;i<=n;i++)
+      {
+        printf("%d:",i);
+         for (j=0;j<b[i];j++)
+           printf("%d ",a[i][j]);
+             printf("\n");
+      }
+   return 0;
+}
+
+
+整数分解：
+ (1)
+void split(int n,int *p,int *t)
+{
+ int i,s,top=0;
+ for(i=1;i<=prime[0];i++)
+ {
+  s=0;
+  while(n%prime[i]==0)  {s++;n/=prime[i];}
+  if(s)  {p[++top]=prime[i];t[top]=s;}
+  if(n==1) break;
+  if(n<prime[i]*prime[i]) {p[++top]=n;t[top]=1;n=1;break;}
+ }
+ p[0]=t[0]=top;
+}
+(2)分解1-100000的因子,且由prime[n][]保存n的素因子(prime[n][0]为质因子的个数):
+void split(int n)//p[]为素数表
+{
+ int i,x=n;
+ prime[n][0]=0;
+ for(i=1;i<=p[0];i++) ////if(x%p[i]==0)严重坑爹的bug
+ {
+  prime[n][++prime[n][0]]=p[i];
+  while(x%p[i]==0) x/=p[i];
+  if(x==1) break;
+ }
+ if(x>1) prime[n][++prime[n][0]]=x;
+}
+(3)Pollard-pho大数分解
+ 
+i64 Pollard(i64 n,int c)
+{
+ i64 i=1,k=2,x=rand()%n,y=x,d;
+ srand(time(NULL));
+ while(true)
+ {
+  i++;
+  x=(mod_mult(x,x,n)+c)%n;
+  d=gcd(y-x,n);
+  if(d>1&&d<n) return d;
+  if(y==x) return n;
+  if(i==k)  { y=x; k<<=1; }
+ }
+}

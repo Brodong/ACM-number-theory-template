@@ -1,0 +1,84 @@
+对于所有非负整数n，兰道函数g(n)定义为对称群S_n的所有元素的秩之中，最大的一个。或者说，g(n)是n的所有整数分拆之
+中的最小公倍数。
+例如 5=2+3，lcm(2,3)=6，没有其他5的分割方式能得出一个更大的最小公倍数，故此g(5)=6
+
+有一个正整数n， n的范围是[0,1000], 把它拆分成若干个数的和，使得它们的最小公倍
+数最大，求最大的最小公倍数S。
+import java.math.BigInteger;
+import java.util.*;
+
+public class Hello
+{
+	 static final int N = 2005;
+	 static boolean prime[] = new boolean[N];
+	 static int p[] = new int[N];
+	 static BigInteger dp[][] = new BigInteger[N][N];
+	 static BigInteger ans[] = new BigInteger[N];
+	 static int k;
+	 
+	 static void isprime()
+	 {
+		  k = 1;
+		  int i,j;
+		  Arrays.fill(prime,true);
+		  for(i=2;i<N;i++)
+		  {
+			   if(prime[i])
+			   {
+				    p[k++] = i;
+				    for(j=i+i;j<N;j+=i)
+				    {
+				    	 prime[j] = false;
+				    }
+			   }
+		  }
+	 }
+	 
+	 static BigInteger max(BigInteger a,BigInteger b)
+	 {
+		  if(a.compareTo(b) == 1) return a;
+		  else return b;
+	 }
+	 
+	 static void Work()
+	 {
+		  for(int i=0;i<N;i++)
+		      for(int j=0;j<k;j++)
+		    	  dp[i][j] = BigInteger.ONE;
+		  for(int i=1;i<k;i++)
+			  dp[2][i] = BigInteger.valueOf(2);
+		  for(int i=3;i<N;i++)
+		  {
+			   for(int j=1;j<k;j++)
+			   {
+				    dp[i][j] = dp[i][j-1];
+				    int tmp = p[j];
+				    while(i >= tmp)
+				    {
+				    	 dp[i][j] = max(dp[i][j],dp[i-tmp][j-1].multiply(BigInteger.valueOf(tmp)));
+				    	 tmp *= p[j];
+				    }
+			   }
+		  }
+		  ans[0] = ans[1] = BigInteger.ONE;
+          ans[2] = BigInteger.valueOf(2);
+		  for(int i=3;i<N;i++)
+		  {
+			   ans[i] = BigInteger.ZERO;
+			   for(int j=1;j<k;j++)
+				    ans[i] = max(ans[i],dp[i][j]);
+		  }
+	 }
+	 
+	 public static void main(String[] args)
+	 {
+		  isprime();
+		  Work();
+		  Scanner cin = new Scanner(System.in);
+		  while(cin.hasNext())
+		  {
+			   int n = cin.nextInt();
+			   System.out.println(ans[n]);
+		  }
+	 }
+}

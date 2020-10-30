@@ -1,0 +1,138 @@
+T(n) = n^k，S(n) = T(1) + T(2) + ...... T(n)。给出n和k，求S(n)。
+例如k = 2，n = 5，S(n) = 1^2 + 2^2 + 3^2 + 4^2 + 5^2 = 55。
+由于结果很大，输出S(n) Mod 1000000007的结果即可。
+#include <iostream>
+#include <string.h>
+#include <stdio.h>
+
+using namespace std;
+typedef long long LL;
+const LL MOD = 1000000007;
+const int N = 2005;
+
+LL C[N][N];
+LL B[N],Inv[N];
+LL Tmp[N];
+LL n;
+
+void Init()
+{
+    //预处理组合数
+    for(int i=0; i<N; i++)
+    {
+        C[i][0] = C[i][i] = 1;
+        if(i == 0) continue;
+        for(int j=1; j<i; j++)
+            C[i][j] = (C[i-1][j] % MOD + C[i-1][j-1] % MOD) % MOD;
+    }
+    //预处理逆元
+    Inv[1] = 1;
+    for(int i=2; i<N; i++)
+        Inv[i] = (MOD - MOD / i) * Inv[MOD % i] % MOD;
+    //预处理伯努利数
+    B[0] = 1;
+    for(int i=1; i<N; i++)
+    {
+        LL ans = 0;
+        if(i == N - 1) break;
+        for(int j=0; j<i; j++)
+        {
+            ans += C[i+1][j] * B[j];
+            ans %= MOD;
+        }
+        ans *= -Inv[i+1];
+        ans = (ans % MOD + MOD) % MOD;
+        B[i] = ans;
+    }
+}
+
+LL Work(int k)
+{
+    LL ans = Inv[k+1];
+    LL sum = 0;
+    for(int i=1; i<=k+1; i++)
+    {
+        sum += C[k+1][i] * Tmp[i] % MOD * B[k+1-i] % MOD;
+        sum %= MOD;
+    }
+    ans *= sum;
+    ans %= MOD;
+    return ans;
+}
+
+int main()
+{
+    int T;
+    Init();
+    scanf("%d", &T);
+    while(T--)
+    {
+        int k;
+        scanf("%I64d %d", &n, &k);
+        n %= MOD;
+        Tmp[0] = 1;
+        for(int i=1; i<N; i++)
+            Tmp[i] = Tmp[i-1] * (n + 1) % MOD;
+        printf("%I64d\n", Work(k));
+    }
+    return 0;
+}
+
+This task is very simple.
+
+You are to calculate Σik (1 <= i <= n).
+import java.math.*;
+import java.util.*;
+
+public class Main {
+	
+	public static final int N = 105;
+	public static final BigInteger FLAG = (BigInteger.ZERO).subtract(BigInteger.ONE);
+	public static BigInteger[][] C = new BigInteger[N][N];
+	public static BigInteger[] ans = new BigInteger[N];
+	
+	public static void Init(){
+		for(int i=0; i<N; i++){
+			C[i][0] = C[i][i] = BigInteger.ONE;
+			if(i == 0) continue;
+			for(int j=1; j<i; j++)
+				C[i][j] = C[i-1][j].add(C[i-1][j-1]);
+		}
+	}
+	
+	public static BigInteger Solve(BigInteger n, int k){
+		if(ans[k].compareTo(FLAG) != 0){
+			return ans[k];
+		}
+		if(k == 1){
+			ans[k] = ((n.add(BigInteger.ONE)).multiply(n)).divide(BigInteger.valueOf(2));
+			return ans[k];
+		}
+		BigInteger tmp = BigInteger.ONE;
+		for(int i=0; i<k+1; i++){
+			tmp = tmp.multiply(n.add(BigInteger.ONE));
+		}
+		tmp = tmp.subtract(n.add(BigInteger.ONE));
+		BigInteger sum = BigInteger.ZERO;
+		for(int i=1; i<k; i++){
+			BigInteger t = C[k+1][i+1].multiply(Solve(n, k-i));
+			sum = sum.add(t);
+		}
+		ans[k] = (tmp.subtract(sum)).divide(BigInteger.valueOf(k+1));
+		return ans[k];
+	}
+	
+	public static void main(String[] args){
+		Init();
+		Scanner cin = new Scanner(System.in);
+		while(cin.hasNext()){
+			BigInteger n = cin.nextBigInteger();
+			int k = cin.nextInt();
+			for(int i=0; i<N; i++){
+				ans[i] = FLAG;
+			}
+			System.out.println(Solve(n, k));
+		}
+	}
+}
+

@@ -1,0 +1,66 @@
+题意:有3堆石子,石子数量分别为a,b,c,有两个玩家,每次只能从任意一堆中取f个,这里的f只能为fibnacci数,问是先手胜
+还是先手败.
+分析:由于石子的数量都在1000以内,那么我们可以先预处理出1000以内的SG函数值,然后对于3堆石子,我们进行异或,如果为
+0说明先手必败,否则必胜,当然求SG函数的值用深搜就行了.
+#include <iostream>
+#include <string.h>
+#include <stdio.h>
+
+using namespace std;
+const int N = 1005;
+const int M = 25;
+
+int fib[25];
+int SG[N];
+
+int mex(int x)
+{
+    bool vis[M];
+    memset(vis,0,sizeof(vis));
+    for(int i=0;i<M;i++)
+    {
+        int t = x - fib[i];
+        if(t < 0) break;
+        if(SG[t] == -1)
+            SG[t] = mex(t);
+        vis[SG[t]] = 1;
+    }
+    for(int i=0;;i++)
+    if(!vis[i]) return i;
+}
+
+void Init()
+{
+    fib[0] = 1;
+    fib[1] = 2;
+    for(int i=2;i<M;i++)
+        fib[i] = fib[i-1] + fib[i-2];
+    memset(SG,-1,sizeof(SG));
+    for(int i=0;i<N;i++)
+        SG[i] = mex(i);
+}
+
+int main()
+{
+    Init();
+    int a,b,c;
+    while(~scanf("%d%d%d",&a,&b,&c))
+    {
+        if(a == 0 && b == 0 && c == 0) break;
+        int ans = 0;
+        ans ^= SG[a];
+        ans ^= SG[b];
+        ans ^= SG[c];
+        if(ans) puts("Fibo");
+        else    puts("Nacci");
+    }
+    return 0;
+}
+
+尼姆博弈
+
+1、问题模型：有三堆各若干个物品，两个人轮流从某一堆取任意多的物品，规定每次至少取一个，多者不限，最后取光者得胜。
+
+2、解决思路：用（a，b，c）表示某种局势，显证（0，0，0）是第一种奇异局势，无论谁面对奇异局势，都必然失败。第二种奇异局势是（0，n，n），只要与对手拿走一样多的物品，最后都将导致（0，0，0）。
+
+  搞定这个问题需要把必败态的规律找出：(a,b,c)是必败态等价于a^b^c=0(^表示异或运算）。
